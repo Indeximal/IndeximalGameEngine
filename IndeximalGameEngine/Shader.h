@@ -89,25 +89,41 @@ namespace ige {
 	private:
 		GLint uniformMVP;
 		GLint uniformColor;
+		GLint uniformLightDir;
 	
 	public:
 		StaticShader(): ShaderProgram("DefaultShader.vert", "DefaultShader.frag") {
 			glBindAttribLocation(shaderProgram, 0, "position");
+			glBindAttribLocation(shaderProgram, 1, "normal");
 			linkProgram();
 			uniformMVP = glGetUniformLocation(shaderProgram, "MVPMatrix");
 			uniformColor = glGetUniformLocation(shaderProgram, "tintColor");
+			uniformLightDir = glGetUniformLocation(shaderProgram, "sunDirection");
 		}
 
 		void setMVP(const glm::mat4 &mat) {
+			GLint currentProgram;
+			glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgram);
 			glUseProgram(shaderProgram);
 			glUniformMatrix4fv(uniformMVP, 1, GL_FALSE, (GLfloat*) &mat);
-			glUseProgram(0);
+			glUseProgram(currentProgram);
 		}
 
 		void setTintColor(float r, float g, float b) {
+			GLint currentProgram;
+			glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgram);
 			glUseProgram(shaderProgram);
 			glUniform3f(uniformColor, r, g, b);
-			glUseProgram(0);
+			glUseProgram(currentProgram);
+		}
+
+		void setLightDir(float x, float y, float z) {
+			auto normal = glm::normalize(glm::vec3(x, y, z));
+			GLint currentProgram;
+			glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgram);
+			glUseProgram(shaderProgram);
+			glUniform3f(uniformLightDir, normal.x, normal.y, normal.z);
+			glUseProgram(currentProgram);
 		}
 	};
 

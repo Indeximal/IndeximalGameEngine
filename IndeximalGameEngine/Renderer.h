@@ -22,6 +22,22 @@ namespace ige {
 		}
 	}
 
+	void setWireframe(bool state) {
+		if (state) {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		} else {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		}
+	}
+
+	void setCulling(bool enable) {
+		if (enable) {
+			glEnable(GL_CULL_FACE);
+		} else {
+			glDisable(GL_CULL_FACE);
+		}
+	}
+
 	void useShader(ShaderProgram *shader) {
 		if (shader != nullptr) {
 			shader->start();
