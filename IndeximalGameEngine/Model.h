@@ -6,8 +6,6 @@
 
 namespace ige {
 
-
-
 	class Model {
 	private:
 		GLuint vao;
@@ -19,7 +17,7 @@ namespace ige {
 
 	public:
 		Model(const std::vector<GLfloat> vertices, const std::vector<GLuint> indices)
-			: dimension(3), totalVertices(indices.size())
+			: dimension(3), totalVertices((int)indices.size())
 		{
 			glGenVertexArrays(1, &vao);
 			glBindVertexArray(vao);
@@ -40,7 +38,7 @@ namespace ige {
 			glBindVertexArray(0);
 		}
 
-		void render() {
+		void _render() {
 			glBindVertexArray(vao);
 			glDrawElements(GL_TRIANGLES, totalVertices, GL_UNSIGNED_INT, nullptr);
 			glBindVertexArray(0);
@@ -57,5 +55,9 @@ namespace ige {
 		Model& operator=(const Model& other) = delete; // copy assignment
 		Model& operator=(Model&& other) = delete; // move assignment
 	};
+
+	//Model loadModelFromObjFile() {
+	//	return Model({}, {});
+	//}
 
 }

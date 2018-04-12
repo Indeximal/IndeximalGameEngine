@@ -22,10 +22,12 @@ namespace ige {
 			glfwInit();
 			glfwWindowHint(GLFW_RESIZABLE, resizable);
 			window = glfwCreateWindow(width, height, title.data(), nullptr, nullptr);
+			_makeContext();
+		}
+
+		void _makeContext() {
 			glfwMakeContextCurrent(window);
 			gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-			glViewport(0, 0, width, height);
-			logInfo("OpenGL (" + getOpenGLVersion() + ") has been started.");
 		}
 
 		bool update() {
@@ -48,6 +50,10 @@ namespace ige {
 
 		unsigned int getHeight() {
 			return height;
+		}
+
+		float getAspectRatio() {
+			return (float)width / (float)height;
 		}
 
 		~Display() {

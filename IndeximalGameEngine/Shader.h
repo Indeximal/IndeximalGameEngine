@@ -6,7 +6,7 @@
 #include <fstream>
 
 namespace ige {
-	class Shader {
+	class ShaderProgram {
 	protected:
 		GLuint shaderProgram;
 		GLuint vertexShader;
@@ -35,7 +35,6 @@ namespace ige {
 				delete[] errorBuf;
 				throw std::logic_error("Shader coudn't be compiled: " + errorMsg);
 			}
-
 			return shaderID;
 		}
 
@@ -51,7 +50,7 @@ namespace ige {
 		}
 
 	public:
-		Shader(const std::string vertexFile, const std::string fragmentFile) {
+		ShaderProgram(const std::string vertexFile, const std::string fragmentFile) {
 			vertexShader = loadShader(vertexFile, GL_VERTEX_SHADER);
 			fragmentShader = loadShader(fragmentFile, GL_FRAGMENT_SHADER);
 			shaderProgram = glCreateProgram();
@@ -71,7 +70,7 @@ namespace ige {
 			glUseProgram(0);
 		}
 
-		~Shader() {
+		~ShaderProgram() {
 			stop();
 			glDetachShader(shaderProgram, fragmentShader);
 			glDetachShader(shaderProgram, vertexShader);
@@ -80,17 +79,35 @@ namespace ige {
 			glDeleteProgram(shaderProgram);
 		}
 
-		Shader(const Shader& other) = delete;
-		Shader(Shader&& other) = delete;
-		Shader& operator=(const Shader& other) = delete;
-		Shader& operator=(Shader&& other) = delete;
+		ShaderProgram(const ShaderProgram& other) = delete;
+		ShaderProgram(ShaderProgram&& other) = delete;
+		ShaderProgram& operator=(const ShaderProgram& other) = delete;
+		ShaderProgram& operator=(ShaderProgram&& other) = delete;
 	};
 
-	class StaticShader : public Shader {
+	class StaticShader : public ShaderProgram {
+	private:
+		GLint uniformMVP;
+		GLint uniformColor;
+	
 	public:
-		StaticShader(): Shader("DefaultShader.vert", "DefaultShader.frag") {
+		StaticShader(): ShaderProgram("DefaultShader.vert", "DefaultShader.frag") {
 			glBindAttribLocation(shaderProgram, 0, "position");
 			linkProgram();
+			uniformMVP = glGetUniformLocation(shaderProgram, "MVPMatrix");
+			uniformColor = glGetUniformLocation(shaderProgram, "tintColor");
+		}
+
+		void setMVP(const glm::mat4 &mat) {
+			glUseProgram(shaderProgram);
+			glUniformMatrix4fv(uniformMVP, 1, GL_FALSE, (GLfloat*) &mat);
+			glUseProgram(0);
+		}
+
+		void setTintColor(float r, float g, float b) {
+			glUseProgram(shaderProgram);
+			glUniform3f(uniformColor, r, g, b);
+			glUseProgram(0);
 		}
 	};
 

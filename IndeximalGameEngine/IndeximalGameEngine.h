@@ -4,6 +4,10 @@
 
 #include <glad\glad.h>
 #include <GLFW\glfw3.h>
+#include <glm/mat4x4.hpp>
+#include <glm\gtc\matrix_transform.hpp>
+#define TINYOBJLOADER_IMPLEMENTATION
+#include "tiny_obj_loader.h"
 
 #include <iostream>
 #include <string>
@@ -41,8 +45,13 @@ namespace ige {
 	std::string getIGEVersion() {
 		return "" + std::to_string(IGE_VERSION_MAJOR) + "." + std::to_string(IGE_VERSION_MINOR) + "." + std::to_string(IGE_VERSION_PATCH);
 	}
+
+	double getTimeSinceStart() {
+		return glfwGetTime();
+	}
 }
 
 #include "Display.h"
 #include "Model.h"
 #include "Shader.h"
+#include "Renderer.h"
