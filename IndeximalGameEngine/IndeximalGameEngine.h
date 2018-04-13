@@ -12,6 +12,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #define IGE_VERSION_MAJOR 0
 #define IGE_VERSION_MINOR 0
@@ -21,6 +22,11 @@ namespace ige {
 	template <typename T>
 	void debugLog(T msg) {
 		std::cout << "(Debug) " << msg << std::endl;
+	}
+	
+	template <typename T>
+	void debugLog(std::string name, T val) {
+		std::cout << "(Debug) " << name << ": " << val << std::endl;
 	}
 
 	template <typename T>
