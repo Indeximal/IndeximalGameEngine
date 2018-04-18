@@ -60,4 +60,5 @@ namespace ige {
 #include "Display.h"
 #include "Model.h"
 #include "Shader.h"
+#include "Framebuffer.h"
 #include "Renderer.h"

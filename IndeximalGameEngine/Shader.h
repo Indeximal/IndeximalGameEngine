@@ -148,4 +148,15 @@ namespace ige {
 		{}		   
 	};
 
+	class Shader2D : public ShaderProgram {
+	public:
+		Shader2D()
+			: ShaderProgram("2DTextureShader.vert", "2DTextureShader.frag", { "position", "texCoords" }) 
+		{}
+
+		void setTexture(GLuint id) {
+			glBindTexture(GL_TEXTURE_2D, id);
+		}
+	};
+
 }

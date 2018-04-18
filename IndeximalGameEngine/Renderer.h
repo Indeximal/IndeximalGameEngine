@@ -13,12 +13,22 @@ namespace ige {
 			if (disp != INTERNAL::activeDisplay) {
 				disp->_makeContext();
 				//logInfo("OpenGL (" + getOpenGLVersion() + ") has been started.");
-				glViewport(0, 0, disp->getWidth(), disp->getHeight());
 				INTERNAL::activeDisplay = disp;
 			}
-		}
-		else {
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			glViewport(0, 0, disp->getWidth(), disp->getHeight());
+
+		} else {
 			INTERNAL::activeDisplay = nullptr;
+		}
+	}
+
+	void renderToFramebuffer(Framebuffer &framebuffer, bool clear = true) {
+		// glViewport() like Display
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.getFboID());
+		if (clear) {
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}
 	}
 
@@ -38,6 +48,15 @@ namespace ige {
 		}
 	}
 
+	void setDepthTest(bool depthTestEnabled) {
+		if (depthTestEnabled) {
+			glEnable(GL_DEPTH_TEST);
+		}
+		else {
+			glDisable(GL_DEPTH_TEST);
+		}
+	}
+
 	void useShader(ShaderProgram *shader) {
 		if (shader != nullptr) {
 			shader->start();
@@ -48,7 +67,13 @@ namespace ige {
 	}
 
 	void renderModel(Model &model) {
+		setDepthTest(true);
 		model._render();
+	}
+
+	void renderQuad(Quad &quad) {
+		setDepthTest(false);
+		quad._render();
 	}
 
 }

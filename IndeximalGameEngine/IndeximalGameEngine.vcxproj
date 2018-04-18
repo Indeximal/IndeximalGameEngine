@@ -132,6 +132,7 @@
     <ClCompile Include="Example.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="IndeximalGameEngine.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Renderer.h" />
@@ -141,6 +142,8 @@
     <ClInclude Include="tiny_obj_loader.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="2DTextureShader.frag" />
+    <None Include="2DTextureShader.vert" />
     <None Include="DefaultShader.frag" />
     <None Include="DefaultShader.vert" />
   </ItemGroup>

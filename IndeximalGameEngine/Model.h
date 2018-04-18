@@ -37,6 +37,71 @@ namespace ige {
 		GLfloat texV;
 	};
 
+	struct Vertex2D {
+		GLfloat posX;
+		GLfloat posY;
+		GLfloat texU;
+		GLfloat texV;
+	};
+
+	class Quad {
+	private:
+		GLuint vao;
+		GLuint vbo;
+
+		Quad(std::vector<Vertex2D> vertices) {
+			if (vertices.size() != 6)
+				logError("This quad doesn't have 6 vertices!");
+
+
+			glGenVertexArrays(1, &vao);
+			glBindVertexArray(vao);
+
+			glGenBuffers(1, &vbo);
+			glBindBuffer(GL_ARRAY_BUFFER, vbo);
+			glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex2D), vertices.data(), GL_STATIC_DRAW);
+			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)offsetof(Vertex2D, posX));
+			glEnableVertexAttribArray(0); // Position
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)offsetof(Vertex2D, texU));
+			glEnableVertexAttribArray(1); // Tex Coords
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+			glBindVertexArray(0);
+			glDisableVertexAttribArray(0);
+			glDisableVertexAttribArray(1);
+		}
+
+	public:
+		Quad(float posXMin, float posYMin, float posXMax, float posYMax, float texUMin = 0.0f, float texVMin = 0.0f, float texUMax = 1.0f, float texVMax = 1.0f) 
+			: Quad({
+				{ posXMin, posYMax, texUMin, texVMax },	// 0
+				{ posXMin, posYMin, texUMin, texVMin },	// 1   // 0-----3
+				{ posXMax, posYMin, texUMax, texVMin },	// 2   // | \   |
+				{ posXMin, posYMax, texUMin, texVMax },	// 0   // |   \ |
+				{ posXMax, posYMin, texUMax, texVMin },	// 2   // 1-----2
+				{ posXMax, posYMax, texUMax, texVMax },	// 3														
+			})
+		{}
+
+		Quad(): Quad(-1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f) {}
+
+		void _render() {
+			glBindVertexArray(vao);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+			glBindVertexArray(0);
+		}
+
+		~Quad() {
+			glDeleteBuffers(1, &vbo);
+			glDeleteVertexArrays(1, &vao);
+		}
+
+		Quad(const Quad& other) = delete; // copy constructor
+		Quad(Quad&& other) = default; // move constructor
+		Quad& operator=(const Quad& other) = delete; // copy assignment
+		Quad& operator=(Quad&& other) = delete; // move assignment
+	};
+
 	class Model {
 	private:
 		GLuint vao;
@@ -100,7 +165,7 @@ namespace ige {
 		std::string err;
 		bool success = tinyobj::LoadObj(&dataArrays, &shapes, nullptr, &err, objFile.c_str());
 		if (!success) 
-			throw std::logic_error("Couldnt load Obj File" + err);
+			throw std::invalid_argument("Couldnt load Obj File" + err);
 
 		if (shapes.size() != 1)
 			logWarning("The obj file '" + objFile + "' contains more than one shape, but only one will be loaded.");
@@ -114,17 +179,29 @@ namespace ige {
 		std::unordered_map<tinyobj::index_t, GLuint> indexMap;
 		indexMap.reserve((size_t) (meshIndices.size() * 0.5));
 
+		if (dataArrays.vertices.size() == 0) throw std::logic_error("Vertex Positions not availiable.");
+		if (dataArrays.normals.size() == 0) logWarning(objFile + ": Model Normals aren't availiable.");
+		if (dataArrays.texcoords.size() == 0) logWarning(objFile + ": Model Texcoords aren't availiable.");
+
 		for (int i = 0; i < meshIndices.size(); i++) {
 			auto indexT = meshIndices[i];
 			Vertex vertex;
 			vertex.posX = dataArrays.vertices[indexT.vertex_index * 3];
 			vertex.posY = dataArrays.vertices[indexT.vertex_index * 3 + 1];
 			vertex.posZ = dataArrays.vertices[indexT.vertex_index * 3 + 2];
-			vertex.normalX = dataArrays.normals[indexT.normal_index * 3];
-			vertex.normalY = dataArrays.normals[indexT.normal_index * 3 + 1];
-			vertex.normalZ = dataArrays.normals[indexT.normal_index * 3 + 2];
-			vertex.texU = dataArrays.texcoords[indexT.texcoord_index * 2];
-			vertex.texV = dataArrays.texcoords[indexT.texcoord_index * 2 + 1];
+			if (indexT.normal_index != -1) {
+				vertex.normalX = dataArrays.normals[indexT.normal_index * 3];
+				vertex.normalY = dataArrays.normals[indexT.normal_index * 3 + 1];
+				vertex.normalZ = dataArrays.normals[indexT.normal_index * 3 + 2];
+			} else {
+				vertex.normalX = 0.0f; vertex.normalY = 0.0f; vertex.normalZ = 0.0f;
+			}
+			if (indexT.texcoord_index != -1) {
+				vertex.texU = dataArrays.texcoords[indexT.texcoord_index * 2];
+				vertex.texV = dataArrays.texcoords[indexT.texcoord_index * 2 + 1];
+			} else {
+				vertex.texU = 0.0f; vertex.texV = 0.0f;
+			}
 
 			auto indexOrEnd = indexMap.find(indexT);
 			if (indexOrEnd == indexMap.end()) {
@@ -135,8 +212,11 @@ namespace ige {
 				indices[i] = indexOrEnd->second;
 			}
 		}
-		logInfo(std::to_string(indices.size() / 3) + " triangles with " + 
-			std::to_string(vertices.size()) + " vertices successfully loaded");
+		float byteSize = (float) (vertices.size() * sizeof(Vertex) + indices.size() * sizeof(GLuint));
+
+		logInfo(objFile + ": " + std::to_string(indices.size() / 3) + " triangles with " + 
+			std::to_string(vertices.size()) + " vertices successfully loaded. (" +
+			std::to_string(byteSize / 1000) + "KB)");
 
 		return Model(vertices, indices);
 	}

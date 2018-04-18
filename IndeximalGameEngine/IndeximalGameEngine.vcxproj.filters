@@ -53,12 +53,21 @@
     <ClInclude Include="tiny_obj_loader.h">
       <Filter>Sourcefiles\ThridParty</Filter>
     </ClInclude>
+    <ClInclude Include="Framebuffer.h">
+      <Filter>Headerfiles</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="DefaultShader.vert">
       <Filter>Sourcefiles\Shaders</Filter>
     </None>
     <None Include="DefaultShader.frag">
+      <Filter>Sourcefiles\Shaders</Filter>
+    </None>
+    <None Include="2DTextureShader.vert">
+      <Filter>Sourcefiles\Shaders</Filter>
+    </None>
+    <None Include="2DTextureShader.frag">
       <Filter>Sourcefiles\Shaders</Filter>
     </None>
   </ItemGroup>
