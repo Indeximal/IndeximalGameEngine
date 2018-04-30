@@ -94,17 +94,38 @@ namespace ige {
 				glUseProgram(program);
 		}
 		void restoreProgram() {
-			glUseProgram(prevProgram);
+			if (prevProgram != program)
+				glUseProgram(prevProgram);
 		}
 
 		Uniform(std::string name, GLuint program) : program(program) {
 			location = glGetUniformLocation(program, name.c_str());
+			if (location == -1) logError("Uniform " + name + " not found!");
 		}
 
 		void set3f(float x, float y, float z) {
 			loadProgram();
 			glUniform3f(location, x, y, z);
 			restoreProgram();
+		}
+	};
+
+	class UniformSampler : Uniform {
+	private:
+		unsigned int number;
+	public:
+		UniformSampler(std::string name, GLuint program, int unsigned number) 
+			: Uniform(name, program), number(number)
+		{
+			loadProgram();
+			glUniform1i(location, number);
+			restoreProgram();
+		}
+
+		void operator=(const Texture& texture) {
+			glActiveTexture(GL_TEXTURE0 + number);
+			glBindTexture(GL_TEXTURE_2D, texture.getNativeID());
+			glActiveTexture(GL_TEXTURE0);
 		}
 	};
 
@@ -134,29 +155,29 @@ namespace ige {
 		UniformMat4 viewMatrix;
 		UniformMat4 projectionMatrix;
 		UniformVec3 lightDirection;
-		UniformVec3 color;
+		UniformVec3 tint;
 		UniformVec3 viewPosition;
+		UniformSampler texture;
 	
-		StaticShader() 
-			: ShaderProgram("DefaultShader.vert", "DefaultShader.frag", { "position", "normal", "uv_coord" }),
+		StaticShader()
+			: ShaderProgram("StaticShader.vert", "StaticShaderTexture.frag", { "position", "normal", "uv_coord" }),
 			modelMatrix("modelMat", shaderProgram),
 			viewMatrix("viewMat", shaderProgram),
 			projectionMatrix("projMat", shaderProgram),
 			lightDirection("lightDirection", shaderProgram),
 			viewPosition("viewPosition", shaderProgram),
-			color("color", shaderProgram)
-		{}		   
+			tint("tint", shaderProgram),
+			texture("tex", shaderProgram, 0)
+		{}
 	};
 
 	class Shader2D : public ShaderProgram {
 	public:
+		UniformSampler texture;
 		Shader2D()
-			: ShaderProgram("2DTextureShader.vert", "2DTextureShader.frag", { "position", "texCoords" }) 
+			: ShaderProgram("2DTextureShader.vert", "2DTextureShader.frag", { "position", "texCoords" }),
+			texture("tex", shaderProgram, 0)
 		{}
-
-		void setTexture(GLuint id) {
-			glBindTexture(GL_TEXTURE_2D, id);
-		}
 	};
 
 }

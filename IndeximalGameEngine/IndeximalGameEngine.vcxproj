@@ -130,22 +130,46 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\GLFW\glad\src\glad.c" />
     <ClCompile Include="Example.cpp" />
+    <ClCompile Include="stb_image.cpp" />
+    <ClCompile Include="tiny_obj_loader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="Entity.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="IndeximalGameEngine.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Display.h" />
-    <ClInclude Include="Texture.h" />
+    <ClInclude Include="stb_image.h" />
+    <ClInclude Include="Terrain.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="tiny_obj_loader.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="2DShaderDeferred.frag" />
     <None Include="2DTextureShader.frag" />
     <None Include="2DTextureShader.vert" />
-    <None Include="DefaultShader.frag" />
-    <None Include="DefaultShader.vert" />
+    <None Include="GeometryPassShader.frag" />
+    <None Include="LightingPassShader.frag" />
+    <None Include="StaticShaderColor.frag" />
+    <None Include="StaticShader.vert" />
+    <None Include="StaticShaderTexture.frag" />
+    <None Include="TerrainShader.frag" />
+    <None Include="TerrainShader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

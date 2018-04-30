@@ -22,52 +22,91 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Headerfiles\ThirdParty">
+      <UniqueIdentifier>{8b8edccf-2314-4c79-b5da-10a06affb449}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Example.cpp">
-      <Filter>Sourcefiles\Examples</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\..\GLFW\glad\src\glad.c">
       <Filter>Sourcefiles\ThridParty</Filter>
     </ClCompile>
+    <ClCompile Include="stb_image.cpp">
+      <Filter>Sourcefiles\ThridParty</Filter>
+    </ClCompile>
+    <ClCompile Include="tiny_obj_loader.cpp">
+      <Filter>Sourcefiles\ThridParty</Filter>
+    </ClCompile>
+    <ClCompile Include="Example.cpp">
+      <Filter>Sourcefiles\Examples</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Texture.h">
+      <Filter>Headerfiles</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Headerfiles</Filter>
+    </ClInclude>
+    <ClInclude Include="Display.h">
+      <Filter>Headerfiles</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity.h">
+      <Filter>Headerfiles</Filter>
+    </ClInclude>
+    <ClInclude Include="Framebuffer.h">
+      <Filter>Headerfiles</Filter>
+    </ClInclude>
     <ClInclude Include="IndeximalGameEngine.h">
       <Filter>Headerfiles</Filter>
     </ClInclude>
     <ClInclude Include="Model.h">
       <Filter>Headerfiles</Filter>
     </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>Headerfiles</Filter>
-    </ClInclude>
-    <ClInclude Include="Display.h">
-      <Filter>Headerfiles</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>Headerfiles</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer.h">
       <Filter>Headerfiles</Filter>
     </ClInclude>
-    <ClInclude Include="tiny_obj_loader.h">
-      <Filter>Sourcefiles\ThridParty</Filter>
-    </ClInclude>
-    <ClInclude Include="Framebuffer.h">
+    <ClInclude Include="Shader.h">
       <Filter>Headerfiles</Filter>
+    </ClInclude>
+    <ClInclude Include="Terrain.h">
+      <Filter>Headerfiles</Filter>
+    </ClInclude>
+    <ClInclude Include="tiny_obj_loader.h">
+      <Filter>Headerfiles\ThirdParty</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>Headerfiles\ThirdParty</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="DefaultShader.vert">
+    <None Include="TerrainShader.vert">
       <Filter>Sourcefiles\Shaders</Filter>
     </None>
-    <None Include="DefaultShader.frag">
+    <None Include="2DShaderDeferred.frag">
+      <Filter>Sourcefiles\Shaders</Filter>
+    </None>
+    <None Include="2DTextureShader.frag">
       <Filter>Sourcefiles\Shaders</Filter>
     </None>
     <None Include="2DTextureShader.vert">
       <Filter>Sourcefiles\Shaders</Filter>
     </None>
-    <None Include="2DTextureShader.frag">
+    <None Include="GeometryPassShader.frag">
+      <Filter>Sourcefiles\Shaders</Filter>
+    </None>
+    <None Include="LightingPassShader.frag">
+      <Filter>Sourcefiles\Shaders</Filter>
+    </None>
+    <None Include="StaticShader.vert">
+      <Filter>Sourcefiles\Shaders</Filter>
+    </None>
+    <None Include="StaticShaderColor.frag">
+      <Filter>Sourcefiles\Shaders</Filter>
+    </None>
+    <None Include="StaticShaderTexture.frag">
+      <Filter>Sourcefiles\Shaders</Filter>
+    </None>
+    <None Include="TerrainShader.frag">
       <Filter>Sourcefiles\Shaders</Filter>
     </None>
   </ItemGroup>

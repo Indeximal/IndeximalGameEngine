@@ -3,6 +3,7 @@
 #pragma once
 
 #include "IndeximalGameEngine.h"
+#include <unordered_map>
 
 namespace tinyobj {
 	bool operator==(const index_t& a, const index_t& b) {
@@ -111,10 +112,12 @@ namespace ige {
 		int dimension;
 		int totalVertices;
 
-	public:
-		Model(const std::vector<Vertex> vertices, const std::vector<GLuint> indices)
-			: totalVertices((int)indices.size())
-		{
+		size_t memorySize;
+
+		void load(const std::vector<Vertex> vertices, const std::vector<GLuint> indices) {
+			totalVertices = (int)indices.size();
+			memorySize = vertices.size() * sizeof(Vertex) + indices.size() * sizeof(GLuint);
+
 			glGenVertexArrays(1, &vao);
 			glBindVertexArray(vao);
 
@@ -141,10 +144,82 @@ namespace ige {
 			glDisableVertexAttribArray(2);
 		}
 
-		void _render() {
+	public:
+		Model(const std::vector<Vertex> vertices, const std::vector<GLuint> indices) {
+			load(vertices, indices);
+		}
+
+		Model(const std::string objFile) {
+			tinyobj::attrib_t dataArrays;
+			std::vector<tinyobj::shape_t> shapes;
+			std::string err;
+			bool success = tinyobj::LoadObj(&dataArrays, &shapes, nullptr, &err, objFile.c_str());
+			if (!success)
+				throw std::invalid_argument("Couldnt load Obj File" + err);
+
+			if (shapes.size() != 1)
+				logWarning("The obj file '" + objFile + "' contains more than one shape, but only one will be loaded.");
+
+			std::vector<Vertex> vertices;
+			std::vector<GLuint> indices;
+
+			auto meshIndices = shapes[0].mesh.indices;
+			indices.resize(meshIndices.size());
+
+			std::unordered_map<tinyobj::index_t, GLuint> indexMap;
+			indexMap.reserve((size_t)(meshIndices.size() * 0.5));
+
+			if (dataArrays.vertices.size() == 0) throw std::logic_error("Vertex Positions not availiable.");
+			if (dataArrays.normals.size() == 0) logWarning(objFile + ": Model Normals aren't availiable.");
+			if (dataArrays.texcoords.size() == 0) logWarning(objFile + ": Model Texcoords aren't availiable.");
+
+			for (int i = 0; i < meshIndices.size(); i++) {
+				auto indexT = meshIndices[i];
+				Vertex vertex;
+				vertex.posX = dataArrays.vertices[indexT.vertex_index * 3];
+				vertex.posY = dataArrays.vertices[indexT.vertex_index * 3 + 1];
+				vertex.posZ = dataArrays.vertices[indexT.vertex_index * 3 + 2];
+				if (indexT.normal_index != -1) {
+					vertex.normalX = dataArrays.normals[indexT.normal_index * 3];
+					vertex.normalY = dataArrays.normals[indexT.normal_index * 3 + 1];
+					vertex.normalZ = dataArrays.normals[indexT.normal_index * 3 + 2];
+				}
+				else {
+					vertex.normalX = 0.0f; vertex.normalY = 0.0f; vertex.normalZ = 0.0f;
+				}
+				if (indexT.texcoord_index != -1) {
+					vertex.texU = dataArrays.texcoords[indexT.texcoord_index * 2];
+					vertex.texV = dataArrays.texcoords[indexT.texcoord_index * 2 + 1];
+				}
+				else {
+					vertex.texU = 0.0f; vertex.texV = 0.0f;
+				}
+
+				auto indexOrEnd = indexMap.find(indexT);
+				if (indexOrEnd == indexMap.end()) {
+					indexMap[indexT] = (GLuint)vertices.size(); // Add index to hashtable
+					indices[i] = (GLuint)vertices.size(); // add index to element buffer
+					vertices.push_back(vertex); // add vertex to vertex buffer
+				}
+				else {
+					indices[i] = indexOrEnd->second;
+				}
+			}
+			load(vertices, indices);
+
+			logInfo(objFile + ": " + std::to_string(indices.size() / 3) + " triangles with " +
+				std::to_string(vertices.size()) + " vertices successfully loaded. (" +
+				std::to_string(memorySize / 1000) + "KB)");
+		}
+
+		void _render() const {
 			glBindVertexArray(vao);
 			glDrawElements(GL_TRIANGLES, totalVertices, GL_UNSIGNED_INT, nullptr);
 			glBindVertexArray(0);
+		}
+
+		int getMemorySize() const {
+			return memorySize;
 		}
 
 		~Model() {
@@ -158,67 +233,4 @@ namespace ige {
 		Model& operator=(const Model& other) = delete; // copy assignment
 		Model& operator=(Model&& other) = delete; // move assignment
 	};
-
-	Model loadModelFromObjFile(std::string objFile) {
-		tinyobj::attrib_t dataArrays;
-		std::vector<tinyobj::shape_t> shapes;
-		std::string err;
-		bool success = tinyobj::LoadObj(&dataArrays, &shapes, nullptr, &err, objFile.c_str());
-		if (!success) 
-			throw std::invalid_argument("Couldnt load Obj File" + err);
-
-		if (shapes.size() != 1)
-			logWarning("The obj file '" + objFile + "' contains more than one shape, but only one will be loaded.");
-
-		std::vector<Vertex> vertices;
-		std::vector<GLuint> indices;
-
-		auto meshIndices = shapes[0].mesh.indices;
-		indices.resize(meshIndices.size());
-
-		std::unordered_map<tinyobj::index_t, GLuint> indexMap;
-		indexMap.reserve((size_t) (meshIndices.size() * 0.5));
-
-		if (dataArrays.vertices.size() == 0) throw std::logic_error("Vertex Positions not availiable.");
-		if (dataArrays.normals.size() == 0) logWarning(objFile + ": Model Normals aren't availiable.");
-		if (dataArrays.texcoords.size() == 0) logWarning(objFile + ": Model Texcoords aren't availiable.");
-
-		for (int i = 0; i < meshIndices.size(); i++) {
-			auto indexT = meshIndices[i];
-			Vertex vertex;
-			vertex.posX = dataArrays.vertices[indexT.vertex_index * 3];
-			vertex.posY = dataArrays.vertices[indexT.vertex_index * 3 + 1];
-			vertex.posZ = dataArrays.vertices[indexT.vertex_index * 3 + 2];
-			if (indexT.normal_index != -1) {
-				vertex.normalX = dataArrays.normals[indexT.normal_index * 3];
-				vertex.normalY = dataArrays.normals[indexT.normal_index * 3 + 1];
-				vertex.normalZ = dataArrays.normals[indexT.normal_index * 3 + 2];
-			} else {
-				vertex.normalX = 0.0f; vertex.normalY = 0.0f; vertex.normalZ = 0.0f;
-			}
-			if (indexT.texcoord_index != -1) {
-				vertex.texU = dataArrays.texcoords[indexT.texcoord_index * 2];
-				vertex.texV = dataArrays.texcoords[indexT.texcoord_index * 2 + 1];
-			} else {
-				vertex.texU = 0.0f; vertex.texV = 0.0f;
-			}
-
-			auto indexOrEnd = indexMap.find(indexT);
-			if (indexOrEnd == indexMap.end()) {
-				indexMap[indexT] = (GLuint) vertices.size(); // Add index to hashtable
-				indices[i] = (GLuint) vertices.size(); // add index to element buffer
-				vertices.push_back(vertex); // add vertex to vertex buffer
-			} else {
-				indices[i] = indexOrEnd->second;
-			}
-		}
-		float byteSize = (float) (vertices.size() * sizeof(Vertex) + indices.size() * sizeof(GLuint));
-
-		logInfo(objFile + ": " + std::to_string(indices.size() / 3) + " triangles with " + 
-			std::to_string(vertices.size()) + " vertices successfully loaded. (" +
-			std::to_string(byteSize / 1000) + "KB)");
-
-		return Model(vertices, indices);
-	}
-
 }

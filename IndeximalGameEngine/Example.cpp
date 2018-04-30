@@ -3,65 +3,119 @@
 #include "IndeximalGameEngine.h"
 
 bool wireframeOn = false;
+bool quadScreenOn = false;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
 		wireframeOn = !wireframeOn;
+	} else if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
+		quadScreenOn = !quadScreenOn;
 	}
 }
 
 int main(int argc, char *argv[]) {
 
-	ige::Display display(800, 600, false, "Example Display");
+	ige::Display display(1080, 720, false, "Example Display");
 	display.setBackgroundColor(0.7f, 0.7f, 0.7f);
 	glfwSetKeyCallback(display.getNativeWindowPtr(), key_callback);
 
-	ige::Framebuffer framebuffer(display.getWidth(), display.getHeight());
+	ige::Camera camera(display, { -2.0f, 0.0f, 2.0f }, 80.0f, 0.1f, 100.0f);
 
-	glm::vec3 viewPos = glm::vec3(1.0f, 2.0f, 2.0f);
-	glm::mat4 viewMat = glm::lookAt(viewPos, glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	glm::mat4 projMat = glm::perspective(glm::radians(80.0f), display.getAspectRatio(), 0.1f, 10.0f);
-
-
-	//ige::Model frog = ige::loadModelFromObjFile("res/Frog.obj");
-	ige::Model dog = ige::loadModelFromObjFile("res/LowPolyDog.obj");
-	glm::mat4 modelMat = glm::scale(glm::mat4(), glm::vec3(1.0f));
-
-	//ige::renderToDisplay(&display);
-	//glViewport(0, 0, display.getWidth() / 2, display.getHeight() / 2);
-	//ige::setCulling(true);
+	ige::GBuffer framebuffer(display.getWidth(), display.getHeight());
+	framebuffer.setClearColor(129 / 256.0f, 199 / 256.0f, 249 / 256.0f);
 
 	ige::StaticShader shader;
+	ige::GeometryPassShader gShader;
+	gShader.projectionMatrix = camera.getProjectionMatrix();
 
-	shader.color = glm::vec3(153.0f, 107.0f, 38.0f) / 256.0f;
-	shader.lightDirection = { 0.0f, -1.0f, -1.0f };
-	shader.viewPosition = viewPos;
-	shader.viewMatrix = viewMat;
-	shader.projectionMatrix = projMat;
+	//ige::Model frog = ige::loadModelFromObjFile("res/Frog.obj");
+	//ige::Model dog("res/LowPolyDog.obj");
+	//glm::mat4 modelMat = glm::scale(glm::mat4(), glm::vec3(1.0f));
 
-	ige::Quad topLeftQuad(-1.0f, 0.0f, 0.0f, 1.0f);
-	ige::Quad topRightQuad(0.0f, 0.0f, 1.0f, 1.0f);
+	ige::Model treeModel("res/SimpleUVTree.obj");
+	ige::Texture treeTex("res/TreeUVTex.png");
+	ige::Entity<ige::GeometryPassShader> tree(treeModel, treeTex, gShader, { 0.0f, 0.0f, 0.0f }, 0.8f);
+	ige::Entity<ige::GeometryPassShader> tree1(treeModel, treeTex, gShader, { 1.0f, 3.0f, 0.0f }, 0.6f);
+	ige::Entity<ige::GeometryPassShader> tree2(treeModel, treeTex, gShader, { -2.0f, 1.0f, 0.0f }, 0.7f);
+	ige::Entity<ige::GeometryPassShader> tree3(treeModel, treeTex, gShader, { -3.0f, -2.0f, 0.0f }, 0.9f);
+
+	glm::vec3 lightDirection = { 1.0f, -1.0f, -2.0f };
+	shader.lightDirection = lightDirection;
+	shader.projectionMatrix = camera.getProjectionMatrix();
+
+	ige::LightingPassShader lightingShader;
+	lightingShader.lightDirection = lightDirection;
 
 	ige::Shader2D quadShader;
+	ige::Geometry2DShader gQuadShader;
+
+	ige::Quad smallQuad(-0.5f, -0.5f, 0.5f, 0.5f);
+	ige::Quad fullQuad;
+	ige::Quad topLeftQuad(-1.0f, 0.0f, 0.0f, 1.0f);
+	ige::Quad topRightQuad(0.0f, 0.0f, 1.0f, 1.0f);
+	ige::Quad bottomLeftQuad(-1.0f, -1.0f, 0.0f, 0.0f);
+	ige::Quad bottomRightQuad(0.0f, -1.0f, 1.0f, 0.0f);
+
+	ige::Texture awesomeFace("res/awesomeface.png");
+
+	ige::setAlphaBlending(false);
+	ige::setCulling(true);
+
+	ige::Terrain terrain(ige::getRandomSeed(), 50, 50, 1.5f, 3, 0.17f, 2.0f, 2.0f, 0.5f);
+	terrain.move({ -20.0f, -20.0f, 0.2f });
 
 	while (display.update()) {
-		glm::mat4 rotatedModel = glm::rotate(modelMat, (float) ige::getTimeSinceStart() * 0.5f, glm::vec3(0.0f, 0.0f, 1.0f));
-		shader.modelMatrix = rotatedModel;
-		
-		ige::setWireframe(false);
+		camera.update();
+
+		/* --- Geometry Pass --- */
 		ige::renderToFramebuffer(framebuffer);
-		ige::useShader(&shader);
-		ige::renderModel(dog);
-		//ige::renderModel(frog);
-
 		ige::setWireframe(wireframeOn);
-		ige::renderToDisplay(&display);
-		ige::useShader(&quadShader);
-		quadShader.setTexture(framebuffer.getDepthTextureID());
-		ige::renderQuad(topRightQuad);
-		quadShader.setTexture(framebuffer.getRGBTextureID());
-		ige::renderQuad(topLeftQuad);
+		ige::setDepthTest(true);
+		framebuffer.clear();
 
+		// Tree
+		ige::useShader(&gShader);
+		gShader.viewMatrix = camera.getViewMatrix();
+		tree.render();
+		//tree1.render();
+		//tree2.render();
+		//tree3.render();
+
+		//ige::useShader(&gQuadShader);
+		//gQuadShader.texture = awesomeFace;
+		//ige::renderQuad(smallQuad);
+
+		// Terrain
+		//terrain.render(camera, lightDirection);
+
+
+		/* --- Lighting Pass --- */
+		ige::renderToDisplay(&display);
+		ige::setWireframe(false);
+		ige::setDepthTest(false);
+
+
+		/* --- Split Screen --- */
+		if (quadScreenOn) {
+			ige::useShader(&quadShader);
+			quadShader.texture = framebuffer.getColorBuffer();
+			ige::renderQuad(topLeftQuad);
+			quadShader.texture = framebuffer.getNormalBuffer();
+			ige::renderQuad(topRightQuad);
+			quadShader.texture = framebuffer.getPositionBuffer();
+			ige::renderQuad(bottomLeftQuad);
+			quadShader.texture = framebuffer.getDepthBuffer();
+			ige::renderQuad(bottomRightQuad);
+		} else {
+			/* --- Lighting Pass --- */
+			ige::useShader(&lightingShader);
+			lightingShader.albedoTexture = framebuffer.getColorBuffer();
+			lightingShader.normalTexture = framebuffer.getNormalBuffer();
+			lightingShader.positionTexture = framebuffer.getPositionBuffer();
+			lightingShader.viewPosition = camera.getPosition();
+
+			ige::renderQuad(fullQuad);
+		}
 	}
 
 	return 0;

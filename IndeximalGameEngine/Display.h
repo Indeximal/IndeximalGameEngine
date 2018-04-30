@@ -5,7 +5,6 @@
 
 namespace ige {
 
-
 	class Display {
 	private:
 		GLFWwindow * window;
@@ -13,6 +12,8 @@ namespace ige {
 		unsigned int height;
 		bool resizable;
 		float bgR, bgG, bgB;
+		double lastFrame;
+		double frameTime;
 
 	public:
 		Display(unsigned int width, unsigned int height, bool resizable, std::string title)
@@ -23,6 +24,7 @@ namespace ige {
 			glfwWindowHint(GLFW_RESIZABLE, resizable);
 			window = glfwCreateWindow(width, height, title.data(), nullptr, nullptr);
 			_makeContext();
+			lastFrame = getTimeSinceStart();
 		}
 
 		void _makeContext() {
@@ -31,13 +33,18 @@ namespace ige {
 		}
 
 		bool update() {
+			frameTime = getTimeSinceStart() - lastFrame;
+			lastFrame = getTimeSinceStart();
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			glfwSwapBuffers(window);
 			glfwPollEvents();
-			//glEnable(GL_DEPTH_TEST);
 			glClearColor(bgR, bgG, bgB, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			return !glfwWindowShouldClose(window);
+		}
+
+		double getFrameTime() {
+			return frameTime;
 		}
 
 		void setBackgroundColor(float r, float g, float b) {

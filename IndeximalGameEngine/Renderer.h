@@ -23,13 +23,11 @@ namespace ige {
 		}
 	}
 
-	void renderToFramebuffer(Framebuffer &framebuffer, bool clear = true) {
-		// glViewport() like Display
-		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.getFboID());
-		if (clear) {
-			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		}
+	void renderToFramebuffer(Framebuffer &framebuffer) {
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.getNativeFboID());
+		glViewport(0, 0, framebuffer.getWidth(), framebuffer.getHeight());
+		std::vector<GLuint>& attachments = framebuffer.getNativeAttachments();
+		glDrawBuffers((GLsizei) attachments.size(), attachments.data());
 	}
 
 	void setWireframe(bool state) {
@@ -67,13 +65,21 @@ namespace ige {
 	}
 
 	void renderModel(Model &model) {
-		setDepthTest(true);
 		model._render();
 	}
 
 	void renderQuad(Quad &quad) {
-		setDepthTest(false);
+
 		quad._render();
+	}
+
+	void setAlphaBlending(bool blendOn) {
+		if (blendOn) {
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		} else {
+			glDisable(GL_BLEND);
+		}
 	}
 
 }
