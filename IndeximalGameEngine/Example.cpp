@@ -16,7 +16,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 int main(int argc, char *argv[]) {
 
 	ige::Display display(1080, 720, false, "Example Display");
-	display.setBackgroundColor(0.7f, 0.7f, 0.7f);
 	glfwSetKeyCallback(display.getNativeWindowPtr(), key_callback);
 
 	ige::Camera camera(display, { -2.0f, 0.0f, 2.0f }, 80.0f, 0.1f, 100.0f);
@@ -34,10 +33,10 @@ int main(int argc, char *argv[]) {
 
 	ige::Model treeModel("res/SimpleUVTree.obj");
 	ige::Texture treeTex("res/TreeUVTex.png");
-	ige::Entity<ige::GeometryPassShader> tree(treeModel, treeTex, gShader, { 0.0f, 0.0f, 0.0f }, 0.8f);
-	ige::Entity<ige::GeometryPassShader> tree1(treeModel, treeTex, gShader, { 1.0f, 3.0f, 0.0f }, 0.6f);
-	ige::Entity<ige::GeometryPassShader> tree2(treeModel, treeTex, gShader, { -2.0f, 1.0f, 0.0f }, 0.7f);
-	ige::Entity<ige::GeometryPassShader> tree3(treeModel, treeTex, gShader, { -3.0f, -2.0f, 0.0f }, 0.9f);
+	ige::Entity<ige::GeometryPassShader> tree(treeModel, treeTex, gShader, { 0.0f, 0.0f, 0.0f }, 0.6f);
+	ige::Entity<ige::GeometryPassShader> tree1(treeModel, treeTex, gShader, { 1.0f, 3.0f, 0.0f }, 0.55f);
+	ige::Entity<ige::GeometryPassShader> tree2(treeModel, treeTex, gShader, { -2.0f, 1.0f, 0.0f }, 0.4f);
+	ige::Entity<ige::GeometryPassShader> tree3(treeModel, treeTex, gShader, { -3.0f, -2.0f, 0.0f }, 0.7f);
 
 	glm::vec3 lightDirection = { 1.0f, -1.0f, -2.0f };
 	shader.lightDirection = lightDirection;
@@ -49,7 +48,7 @@ int main(int argc, char *argv[]) {
 	ige::Shader2D quadShader;
 	ige::Geometry2DShader gQuadShader;
 
-	ige::Quad smallQuad(-0.5f, -0.5f, 0.5f, 0.5f);
+	//ige::Quad smallQuad(-0.5f, -0.5f, 0.5f, 0.5f);
 	ige::Quad fullQuad;
 	ige::Quad topLeftQuad(-1.0f, 0.0f, 0.0f, 1.0f);
 	ige::Quad topRightQuad(0.0f, 0.0f, 1.0f, 1.0f);
@@ -64,6 +63,7 @@ int main(int argc, char *argv[]) {
 	ige::Terrain terrain(ige::getRandomSeed(), 50, 50, 1.5f, 3, 0.17f, 2.0f, 2.0f, 0.5f);
 	terrain.move({ -20.0f, -20.0f, 0.2f });
 
+
 	while (display.update()) {
 		camera.update();
 
@@ -77,9 +77,9 @@ int main(int argc, char *argv[]) {
 		ige::useShader(&gShader);
 		gShader.viewMatrix = camera.getViewMatrix();
 		tree.render();
-		//tree1.render();
-		//tree2.render();
-		//tree3.render();
+		tree1.render();
+		tree2.render();
+		tree3.render();
 
 		//ige::useShader(&gQuadShader);
 		//gQuadShader.texture = awesomeFace;

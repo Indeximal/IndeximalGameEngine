@@ -16,7 +16,7 @@ namespace ige {
 		glm::mat4 projMatrix;
 		double prevX = 0.0;
 		double prevY = 0.0;
-		double angleDY = glm::pi<double>();
+		double angleDY = 0.0;
 		double angleDX = 0.0;
 
 		float speed = 5.0f;

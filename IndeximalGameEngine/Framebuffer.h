@@ -5,6 +5,7 @@
 
 namespace ige {
 	class Framebuffer {
+	protected:
 		GLuint fbo;
 		std::vector<GLuint> attachments;
 
@@ -100,6 +101,16 @@ namespace ige {
 			attachDepthTexture(depthBuf);
 
 			if (!checkStatusOK()) ige::logError("Failed to init GBuffer!");
+		}
+
+		void clear() {
+			glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+			float zeroArr[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+			float bgArrF[4] = { bgR, bgG, bgB, 1.0f };
+ 			glClearBufferfv(GL_COLOR, 0, bgArrF);
+ 			glClearBufferfv(GL_COLOR, 1, zeroArr);
+			glClearBufferfv(GL_COLOR, 2, zeroArr);
+			glClear(GL_DEPTH_BUFFER_BIT);
 		}
 
 		Texture& getColorBuffer() {

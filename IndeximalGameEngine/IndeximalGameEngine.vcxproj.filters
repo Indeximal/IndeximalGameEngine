@@ -25,6 +25,12 @@
     <Filter Include="Headerfiles\ThirdParty">
       <UniqueIdentifier>{8b8edccf-2314-4c79-b5da-10a06affb449}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Sourcefiles\Shaders\Vertex">
+      <UniqueIdentifier>{80c3aadc-bda6-41b6-89c4-d44212db7756}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sourcefiles\Shaders\Fragment">
+      <UniqueIdentifier>{a6925f34-1def-4887-bd68-06c4a539f0f0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\GLFW\glad\src\glad.c">
@@ -79,35 +85,35 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="TerrainShader.vert">
-      <Filter>Sourcefiles\Shaders</Filter>
-    </None>
-    <None Include="2DShaderDeferred.frag">
-      <Filter>Sourcefiles\Shaders</Filter>
-    </None>
-    <None Include="2DTextureShader.frag">
-      <Filter>Sourcefiles\Shaders</Filter>
-    </None>
     <None Include="2DTextureShader.vert">
-      <Filter>Sourcefiles\Shaders</Filter>
-    </None>
-    <None Include="GeometryPassShader.frag">
-      <Filter>Sourcefiles\Shaders</Filter>
-    </None>
-    <None Include="LightingPassShader.frag">
-      <Filter>Sourcefiles\Shaders</Filter>
+      <Filter>Sourcefiles\Shaders\Vertex</Filter>
     </None>
     <None Include="StaticShader.vert">
-      <Filter>Sourcefiles\Shaders</Filter>
+      <Filter>Sourcefiles\Shaders\Vertex</Filter>
+    </None>
+    <None Include="TerrainShader.vert">
+      <Filter>Sourcefiles\Shaders\Vertex</Filter>
+    </None>
+    <None Include="2DShaderDeferred.frag">
+      <Filter>Sourcefiles\Shaders\Fragment</Filter>
+    </None>
+    <None Include="2DTextureShader.frag">
+      <Filter>Sourcefiles\Shaders\Fragment</Filter>
+    </None>
+    <None Include="GeometryPassShader.frag">
+      <Filter>Sourcefiles\Shaders\Fragment</Filter>
+    </None>
+    <None Include="LightingPassShader.frag">
+      <Filter>Sourcefiles\Shaders\Fragment</Filter>
     </None>
     <None Include="StaticShaderColor.frag">
-      <Filter>Sourcefiles\Shaders</Filter>
+      <Filter>Sourcefiles\Shaders\Fragment</Filter>
     </None>
     <None Include="StaticShaderTexture.frag">
-      <Filter>Sourcefiles\Shaders</Filter>
+      <Filter>Sourcefiles\Shaders\Fragment</Filter>
     </None>
     <None Include="TerrainShader.frag">
-      <Filter>Sourcefiles\Shaders</Filter>
+      <Filter>Sourcefiles\Shaders\Fragment</Filter>
     </None>
   </ItemGroup>
 </Project>

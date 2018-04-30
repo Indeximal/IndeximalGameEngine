@@ -21,7 +21,10 @@ void main() {
     vec3 normal = texture(normalBuffer, frag_TexCoords).xyz;
     vec3 position = texture(positionBuffer, frag_TexCoords).xyz;
 
-    if (normal == vec3(0.0)) out_Color = vec4(color, 1.0); 
+    if (normal == vec3(0.0)) {
+        out_Color = vec4(color, 1.0);
+        return;
+    }      
 
     vec3 N = normalize(normal);
 	vec3 L = -normalize(lightDirection);
@@ -33,5 +36,5 @@ void main() {
 	vec3 specular = specularColor * pow(max(dot(R, V), 0.0), shininessConst);
 
 	out_Color = vec4(ambient + diffuse + specular, 1.0);
-    //out_Color = vec4(color, 1.0);
+    //out_Color = vec4(vec3(length(normal)), 1.0);
 }
